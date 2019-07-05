@@ -1,10 +1,14 @@
 package com.poncoe.retrofit.recyclerviewsearchfilterexample;
 
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,6 +41,19 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         movieAdapter = new MovieAdapter();
         recyclerView.setAdapter(movieAdapter);
+
+        if(!isConnect()){
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Tidak Ada Koneksi Internet")
+                    .setMessage("Tidak Dapat Memuat Data, Silahkan Coba Lagi!")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            MainActivity.this.finish();
+                        }
+                    }).show();
+        }
 
         movieList = new ArrayList<>();
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
@@ -86,6 +103,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return true;
+    }
+
+    public boolean isConnect() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @Override
